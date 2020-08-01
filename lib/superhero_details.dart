@@ -127,7 +127,7 @@ class Appearance {
 
     eyeColor = json['eyeColor'];
     hairColor = json['hairColor'];
-    var heightFromJson = json['height'];
+    height = json['height'].cast<String>();
   }
 
   Map<String, dynamic> toJson() {

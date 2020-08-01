@@ -2,26 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'superhero_details.dart';
-import 'main.dart';
 import 'package:flip_card/flip_card.dart';
 
 class HeroDetails extends StatefulWidget {
-  final superhero;
-  final superHeroName;
-  final superHeroImage;
-  final Map<dynamic, dynamic> appearance;
-  final Map<dynamic, dynamic> biography;
-  final Map<dynamic, dynamic> powerstats;
-  final Map<dynamic, dynamic> connections;
+  final Superheros superhero;
 
-  HeroDetails(
-      {this.superhero,
-      this.superHeroName,
-      this.superHeroImage,
-      this.appearance,
-      this.biography,
-      this.powerstats,
-      this.connections});
+  HeroDetails({this.superhero});
 
   @override
   _HeroDetailsState createState() => _HeroDetailsState();
@@ -75,7 +61,7 @@ class _HeroDetailsState extends State<HeroDetails>
                         height: 80,
                       ),
                       Text(
-                        "Name:${widget.superHeroName}",
+                        "Name:${widget.superhero.name}",
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -86,11 +72,11 @@ class _HeroDetailsState extends State<HeroDetails>
                         padding: EdgeInsets.all(20),
                         child: Row(
                           children: <Widget>[
-                            appearance(),
-                            biography(),
-                            powerstats(),
-                            groupAffiliation(),
-                            connections()
+                            appearance(widget.superhero.appearance),
+                            biography(widget.superhero.biography),
+                            powerstats(widget.superhero.powerstats),
+                            groupAffiliation(widget.superhero.connections),
+                            connections(widget.superhero.connections)
                           ],
                         ),
                       ),
@@ -111,7 +97,7 @@ class _HeroDetailsState extends State<HeroDetails>
                           new BorderRadius.all(const Radius.circular(8.0)),
                       image: DecorationImage(
                           fit: BoxFit.cover,
-                          image: NetworkImage(widget.superHeroImage)),
+                          image: NetworkImage(widget.superhero.images.lg)),
                     ),
                   )),
             ),
@@ -121,7 +107,7 @@ class _HeroDetailsState extends State<HeroDetails>
     );
   }
 
-  appearance() {
+  appearance(Appearance appearence) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FlipCard(
@@ -157,7 +143,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "Gender: ${widget.appearance["superHerogender"]}",
+                    "Gender: ${appearence.gender}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -173,7 +159,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "Race: ${widget.appearance["superHeroRace"]}",
+                    "Race: ${appearence.race}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -189,7 +175,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "Height: ${widget.appearance["superHeroHeight"]}",
+                    "Height: ${appearence.height}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -205,7 +191,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "Weight: ${widget.appearance["superHeroWeight"]}",
+                    "Weight: ${appearence.weight}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -221,7 +207,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "EyeColor: ${widget.appearance["superHeroEyecolor"]}",
+                    "EyeColor: ${appearence.eyeColor}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -237,7 +223,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "HaiColor: ${widget.appearance["superHeroHaircolor"]}",
+                    "HaiColor: ${appearence.hairColor}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -251,7 +237,7 @@ class _HeroDetailsState extends State<HeroDetails>
     );
   }
 
-  biography() {
+  biography(Biography biography) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FlipCard(
@@ -288,7 +274,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "FullName: ${widget.biography["fullName"]}",
+                    "FullName: ${biography.fullName}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -305,7 +291,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "PlaceOfBirth: ${widget.biography["placeOfBirth"]}",
+                    "PlaceOfBirth: ${biography.placeOfBirth}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -321,7 +307,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "Publisher: ${widget.biography["publisher"]}",
+                    "Publisher: ${biography.publisher}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -337,7 +323,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "alignment: ${widget.biography["alignment"]}",
+                    "alignment: ${biography.alignment}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -351,7 +337,7 @@ class _HeroDetailsState extends State<HeroDetails>
     );
   }
 
-  powerstats() {
+  powerstats(Powerstats powerstats) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FlipCard(
@@ -387,7 +373,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "intelligence: ${widget.powerstats["intelligence"]}",
+                    "intelligence: ${powerstats.intelligence}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -403,7 +389,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "speed: ${widget.powerstats["speed"]}",
+                    "speed: ${powerstats.speed}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -419,7 +405,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "power: ${widget.powerstats["power"]}",
+                    "power: ${powerstats.power}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -435,7 +421,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "combat: ${widget.powerstats["combat"]}",
+                    "combat: ${powerstats.combat}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -451,7 +437,7 @@ class _HeroDetailsState extends State<HeroDetails>
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.pink[200]),
                   child: Text(
-                    "strength: ${widget.powerstats["strength"]}",
+                    "strength: ${powerstats.strength}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -465,7 +451,7 @@ class _HeroDetailsState extends State<HeroDetails>
     );
   }
 
-  groupAffiliation() {
+  groupAffiliation(Connections connections) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FlipCard(
@@ -510,7 +496,7 @@ class _HeroDetailsState extends State<HeroDetails>
                     ),
                   ),
                   Text(
-                    "${widget.connections["groupAffiliation"]}",
+                    "${connections.groupAffiliation}",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
@@ -524,7 +510,7 @@ class _HeroDetailsState extends State<HeroDetails>
     );
   }
 
-  connections() {
+  connections(Connections connections) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FlipCard(
@@ -569,7 +555,7 @@ class _HeroDetailsState extends State<HeroDetails>
                   ),
                 ),
                 Text(
-                  "${widget.connections["relatives"]}",
+                  "${connections.relatives}",
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),

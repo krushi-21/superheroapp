@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'detailspage.dart';
 import 'superhero_details.dart';
+import 'superhero_details.dart';
+import 'superhero_details.dart';
 
 const API = "https://cdn.rawgit.com/akabab/superhero-api/0.2.0/api/all.json";
 
@@ -17,35 +19,91 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var superhero;
-  var superHeroName;
-  bool searchVisible;
+  List<Superheros> allSuperheroes =
+      []; // instead of returning the superheroes in fetchData, we will assign it to this List, so we can use it again during searching
+  // doing so we wouldn't need to call the API again and again,
+
+  bool searchResultsVisible = false;
   List<Superheros> searchResults = [];
+
+  TextEditingController _textEditingController;
+
+  @override
+  void initState() {
+    _textEditingController = TextEditingController();
+    super.initState();
+  }
+
+  Future<bool> fetchData() async {
+    // if allSuperheroes was set without any errors, fetchData will return true, otherwise it'll return an error
+    try {
+      var response = await http.get(API);
+      var data = jsonDecode(response.body);
+
+      List<Superheros> superHerosList = data.map<Superheros>((sup) {
+        return Superheros.fromJson(sup);
+      }).toList();
+
+      allSuperheroes = superHerosList; // this is important change
+
+      return true;
+    } catch (err) {
+      return Future.error("Daya, kuch toh gadbad hai.");
+    }
+  }
+
+  _handleSearch() {
+    var searchQuery = _textEditingController.text.trim();
+    print(searchQuery);
+    if (searchQuery.length > 0) {
+      // when search is submitted, check if the search string isn't empty
+      // if not empty, we can do the search
+
+      // do the searching
+
+      print("doing search");
+
+      searchResults = [];
+
+      for (Superheros s in allSuperheroes) {
+        if (s.name.toLowerCase().indexOf(RegExp(searchQuery.toLowerCase())) >
+            -1) {
+          searchResults.add(s);
+        }
+      }
+
+      setState(() {
+        searchResults =
+            searchResults; //  above, we are setting searchResults to empty, and filling it with results but not using setState,
+        // so that the app wont slow down,
+        // after the search is done, update the UI with new values,
+        // since we stored the results in the same variable we just set it to itself in setState, so the gridbuilder will run once again
+        // with the new results
+      });
+
+      if (searchResultsVisible == false) {
+        setState(() {
+          searchResultsVisible = true;
+        });
+      }
+    } else {
+      // if the textbox value is empty, then hide the results
+      if (searchResultsVisible) {
+        // set visible to false only if it was previously true, makes it more efficient
+        setState(() {
+          searchResultsVisible = false;
+        });
+        _textEditingController.clear(); // clear the textbox
+      }
+    }
+  }
+
   Icon searchIcon = Icon(Icons.search, color: Colors.black, size: 30);
   Widget titleText = Text(
     "Superhero App",
     style: TextStyle(
         color: Colors.black, fontWeight: FontWeight.bold, fontSize: 25),
   );
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Future<dynamic> fetchData() async {
-    var response = await http.get(API);
-    var data = jsonDecode(response.body);
-
-    // data is an array of Maps. so loop through it and make an Array of the class Superheros objects,
-    // use it's fromJson method to do it.
-
-    // List<Superheros> superHerosList = data.map( (sup) { return SuperHeros.fromJson(sup); } ).toList();
-
-    // and return that final List. When Doing that, the return type of this function would become,
-    // Future<List<Superheros>>
-    return data;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,37 +121,27 @@ class _MyAppState extends State<MyApp> {
                       this.searchIcon = Icon(Icons.cancel, color: Colors.black);
                       this.titleText = TextField(
                         textInputAction: TextInputAction.go,
+                        controller: _textEditingController,
                         decoration: InputDecoration(
                             border: InputBorder.none, hintText: "Search..."),
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 15.0,
                         ),
-                        onChanged: (text) {
-                          text = text.toLowerCase();
-                          setState(() {
-                            return GridView.builder(
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                ),
-                                itemCount: searchVisible
-                                    ? searchResults.length
-                                    : superhero.length,
-                                itemBuilder:
-                                    ((BuildContext context, int index) {
-                                  if (searchVisible) {
-                                    return Card(
-                                      child: Text(searchResults[index].name),
-                                    );
-                                  } else {
-                                    return Card(child: Text("j"));
-                                  }
-                                }));
-                          });
+                        onEditingComplete: () {
+                          _handleSearch(); // when the enter key is pressed on kyb
+                        },
+                        onChanged: (value) {
+                          _handleSearch();
                         },
                       );
                     } else {
+                      setState(() {
+                        // hide the results when the clear button is clicked
+                        searchResultsVisible = false;
+                      });
+                      _textEditingController.clear(); // clear the textbox
+
                       this.searchIcon =
                           Icon(Icons.search, color: Colors.black, size: 30);
                       this.titleText = Text(
@@ -111,60 +159,20 @@ class _MyAppState extends State<MyApp> {
           elevation: 0.0,
         ),
         body: Center(
-          child: FutureBuilder(
-              future: fetchData(),
-              builder: (_, snapshot) {
-                // first check for errors.
+          child:
+              // ternary operator, 👇
+              //  condition ? ifTrue : ifFalse
 
-                if (snapshot.hasError) {
-                  return Text("error");
-                } else if (snapshot.hasData) {
-                  // next display the data if there are no errors.
-                  var totalItems = snapshot.data.length;
-                  return GridView.builder(
-                      itemCount: totalItems,
+              searchResultsVisible
+                  ?
+                  // 👇 this is selected if the searchResultsVisible is true, since it's in the isTrue section of ternary,
+                  GridView.builder(
+                      itemCount: searchResults.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                       ),
                       itemBuilder: (BuildContext context, int index) {
-                        superhero = snapshot.data[index];
-                        // individual superhero data.
-                        // You should loop through this
-                        // and use the fromJson() method of your model
-                        // to convert it to object in the fetchData() itself,
-
-                        var superHeroImage = superhero["images"]["lg"];
-                        superHeroName = superhero["name"];
-                        Map<dynamic, dynamic> appearance = {
-                          "superHerogender": superhero["appearance"]["gender"],
-                          "superHeroRace": superhero["appearance"]["race"],
-                          "superHeroHeight": superhero["appearance"]["height"],
-                          "superHeroWeight": superhero["appearance"]["weight"],
-                          "superHeroEyecolor": superhero["appearance"]
-                              ["eyeColor"],
-                          "superHeroHaircolor": superhero["appearance"]
-                              ["hairColor"],
-                        };
-                        Map<dynamic, dynamic> biography = {
-                          "fullName": superhero["biography"]["fullName"],
-                          "placeOfBirth": superhero["biography"]
-                              ["placeOfBirth"],
-                          "publisher": superhero["biography"]["publisher"],
-                          "alignment": superhero["biography"]["alignment"],
-                        };
-                        Map<dynamic, dynamic> powerstats = {
-                          "intelligence": superhero["powerstats"]
-                              ["intelligence"],
-                          "strength": superhero["powerstats"]["strength"],
-                          "speed": superhero["powerstats"]["speed"],
-                          "power": superhero["powerstats"]["power"],
-                          "combat": superhero["powerstats"]["combat"],
-                        };
-                        Map<dynamic, dynamic> connections = {
-                          "groupAffiliation": superhero["connections"]
-                              ["groupAffiliation"],
-                          "relatives": superhero["connections"]["relatives"],
-                        };
+                        Superheros superhero = searchResults[index];
 
                         return Padding(
                           padding: const EdgeInsets.all(0.6),
@@ -174,13 +182,8 @@ class _MyAppState extends State<MyApp> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => HeroDetails(
-                                        superhero: superhero,
-                                        superHeroName: superHeroName,
-                                        superHeroImage: superHeroImage,
-                                        appearance: appearance,
-                                        biography: biography,
-                                        powerstats: powerstats,
-                                        connections: connections),
+                                      superhero: superhero,
+                                    ),
                                   ));
                             },
                             child: Hero(
@@ -199,7 +202,8 @@ class _MyAppState extends State<MyApp> {
                                         ),
                                         image: DecorationImage(
                                           fit: BoxFit.fill,
-                                          image: NetworkImage(superHeroImage),
+                                          image:
+                                              NetworkImage(superhero.images.lg),
                                         ),
                                       ),
                                     ),
@@ -208,7 +212,7 @@ class _MyAppState extends State<MyApp> {
                                       width: 170,
                                       child: Center(
                                         child: Text(
-                                          superHeroName,
+                                          superhero.name,
                                           style: TextStyle(
                                             fontSize: 18.0,
                                             fontWeight: FontWeight.bold,
@@ -222,14 +226,87 @@ class _MyAppState extends State<MyApp> {
                             ),
                           ),
                         );
-                      });
-                }
-                return CircularProgressIndicator();
-              }),
+                      })
+                  :
+                  // 👇 this is selected if the searchResultsVisible is false
+                  FutureBuilder<bool>(
+                      future: fetchData(),
+                      builder: (_, snapshot) {
+                        if (snapshot.hasError) {
+                          return Text(snapshot.error);
+                        } else if (snapshot.hasData && snapshot.data) {
+                          // since .data is bool, we can check if it's true
+
+                          var totalItems = allSuperheroes.length;
+
+                          return GridView.builder(
+                              itemCount: totalItems,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                              ),
+                              itemBuilder: (BuildContext context, int index) {
+                                Superheros superhero = allSuperheroes[index];
+
+                                return Padding(
+                                  padding: const EdgeInsets.all(0.6),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => HeroDetails(
+                                              superhero: superhero,
+                                            ),
+                                          ));
+                                    },
+                                    child: Hero(
+                                      tag: superhero,
+                                      child: Card(
+                                        margin: EdgeInsets.all(3),
+                                        elevation: 3.0,
+                                        child: Column(
+                                          children: <Widget>[
+                                            Container(
+                                              height: 145,
+                                              width: 163,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    new BorderRadius.all(
+                                                  const Radius.circular(8.0),
+                                                ),
+                                                image: DecorationImage(
+                                                  fit: BoxFit.fill,
+                                                  image: NetworkImage(
+                                                      superhero.images.lg),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              color: Colors.white,
+                                              width: 170,
+                                              child: Center(
+                                                child: Text(
+                                                  superhero.name,
+                                                  style: TextStyle(
+                                                    fontSize: 18.0,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              });
+                        }
+                        return CircularProgressIndicator();
+                      }),
         ),
       ),
     );
   }
-
-  detailspage({superhero}) {}
 }
