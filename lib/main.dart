@@ -41,6 +41,7 @@ class _MyAppState extends State<MyApp> {
       var data = jsonDecode(response.body);
 
       List<Superheros> superHerosList = data.map<Superheros>((sup) {
+        // converting Map to Superheroes class object
         return Superheros.fromJson(sup);
       }).toList();
 
