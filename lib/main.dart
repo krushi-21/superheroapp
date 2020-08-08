@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'detailspage.dart';
 import 'superhero_details.dart';
 import 'superhero_details.dart';
-import 'superhero_details.dart';
+import 'package:flutter/services.dart';
 
 const API = "https://cdn.rawgit.com/akabab/superhero-api/0.2.0/api/all.json";
 
@@ -19,8 +19,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<Superheros> allSuperheroes =
-      []; // instead of returning the superheroes in fetchData, we will assign it to this List, so we can use it again during searching
+  List<Superheros> allSuperheroes = [];
+  // instead of returning the superheroes in fetchData, we will assign it to this List, so we can use it again during searching
   // doing so we wouldn't need to call the API again and again,
 
   bool searchResultsVisible = false;
@@ -32,6 +32,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     _textEditingController = TextEditingController();
     super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
   }
 
   Future<bool> fetchData() async {
@@ -49,7 +52,7 @@ class _MyAppState extends State<MyApp> {
 
       return true;
     } catch (err) {
-      return Future.error("Daya, kuch toh gadbad hai.");
+      return Future.error("Connection Error Restart App");
     }
   }
 
